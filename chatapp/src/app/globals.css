@@ -1,0 +1,573 @@
+@import 'tailwindcss';
+
+/* Dark mode variables - default theme */
+:root {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --primary: #818cf8;
+  --primary-dark: #6366f1;
+  --secondary: #1e293b;
+  --accent: #22d3ee;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --error: #f87171;
+  --border: #334155;
+  --card: #1e293b;
+  --muted: #94a3b8;
+  --muted-foreground: #cbd5e1;
+  --input-bg: #1e293b;
+  --input-border: #475569;
+  --glass-bg: rgba(30, 41, 59, 0.8);
+  --glass-border: rgba(148, 163, 184, 0.2);
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --border-primary: #334155;
+  --border-secondary: #475569;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Beautiful dark gradient background */
+.gradient-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+}
+
+/* Glass morphism effect with better visibility */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  color: var(--foreground);
+}
+
+/* Input area without border */
+.input-area {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  color: var(--foreground);
+}
+
+/* Enhanced input styles for dark mode */
+.input-glass {
+  background: rgba(17, 24, 39, 0.3);
+  border: 1px solid rgba(55, 65, 81, 0.5);
+  color: var(--text-primary);
+  backdrop-filter: blur(10px);
+}
+
+.input-glass::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.7;
+}
+
+.input-glass:focus {
+  background: rgba(17, 24, 39, 0.3);
+  border-color: #6366f1;
+  color: var(--text-primary);
+}
+
+/* Ensure all text is visible */
+.text-contrast {
+  color: var(--foreground);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+/* Button improvements */
+.btn-hover:hover {
+  background: var(--secondary);
+  color: var(--foreground);
+  transform: translateY(-1px);
+}
+
+/* Custom scrollbar with better styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--muted);
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Smooth animations */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.message-animate {
+  animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.scale-in {
+  animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Typing indicator with elegant animation */
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+.typing-dots {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.typing-dots span {
+  width: 6px;
+  height: 6px;
+  background: var(--muted);
+  border-radius: 50%;
+  animation: typing 1.4s infinite ease-in-out;
+}
+
+.dark .typing-dots span {
+  background: var(--muted-foreground);
+}
+
+.typing-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Enhanced button styles */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Message bubble styles with ChatGPT-like appearance */
+.message-bubble {
+  padding: 12px 16px;
+  border-radius: 18px;
+  position: relative;
+  word-wrap: break-word;
+  line-height: 1.5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+}
+
+.message-bubble-user {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+  max-width: 80%;
+}
+
+.message-bubble-assistant {
+  background: rgba(17, 24, 39, 0.3);
+  color: var(--text-primary);
+  border: 1px solid rgba(55, 65, 81, 0.3);
+  border-bottom-left-radius: 4px;
+  width: 100%;
+  max-width: 100%;
+  backdrop-filter: blur(10px);
+}
+
+/* Markdown styles with proper contrast and improved spacing */
+.markdown-content {
+  line-height: 1.7;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  font-weight: 600;
+  margin: 24px 0 12px 0;
+  color: var(--text-primary);
+}
+
+.markdown-content h1 {
+  font-size: 1.25em;
+  border-bottom: 2px solid var(--border-primary);
+  padding-bottom: 8px;
+}
+
+.markdown-content h2 {
+  font-size: 1.15em;
+  color: var(--primary);
+  margin-top: 28px;
+}
+
+.markdown-content h3 {
+  font-size: 1.1em;
+  color: var(--primary);
+  margin-top: 24px;
+}
+
+.markdown-content p {
+  margin: 16px 0;
+  color: var(--text-primary);
+  line-height: 1.7;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: 16px 0;
+  padding-left: 24px;
+  color: var(--text-primary);
+}
+
+.markdown-content li {
+  margin: 8px 0;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.markdown-content code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: var(--text-primary);
+  word-wrap: break-word;
+}
+
+/* Code block wrapper with integrated copy button */
+.code-block-wrapper {
+  position: relative;
+  margin: 20px 0;
+}
+
+.code-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(55, 65, 81, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #cbd5e1;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  z-index: 10;
+}
+
+.code-block-wrapper:hover .code-copy-btn {
+  opacity: 1;
+}
+
+.code-copy-btn:hover {
+  background: rgba(75, 85, 99, 1);
+  border-color: rgba(148, 163, 184, 0.6);
+  transform: translateY(-1px);
+  opacity: 1;
+}
+
+/* Copy response button for entire messages */
+.copy-response-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(55, 65, 81, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #cbd5e1;
+  padding: 4px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+  z-index: 10;
+}
+
+.message-bubble-assistant:hover .copy-response-button {
+  opacity: 1;
+}
+
+.copy-response-button:hover {
+  background: rgba(75, 85, 99, 0.9);
+  border-color: rgba(148, 163, 184, 0.5);
+  transform: translateY(-1px);
+  opacity: 1;
+}
+
+.markdown-content pre {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(55, 65, 81, 0.5);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+  overflow-x: auto;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 100%;
+}
+
+.markdown-content pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  color: var(--text-primary);
+  font-size: 14px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* Syntax highlighting for code blocks */
+.markdown-content pre code.language-python,
+.markdown-content pre code.language-javascript,
+.markdown-content pre code.language-js,
+.markdown-content pre code.language-typescript,
+.markdown-content pre code.language-ts,
+.markdown-content pre code.language-bash,
+.markdown-content pre code.language-css,
+.markdown-content pre code.language-html {
+  color: #e6e6e6; /* Default text color */
+}
+
+/* Python keywords */
+.markdown-content pre code .keyword {
+  color: #569cd6; /* Blue for keywords like def, class, if, for, etc. */
+  font-weight: 600;
+}
+
+/* Function names */
+.markdown-content pre code .function {
+  color: #dcdcaa; /* Yellow for function names */
+  font-weight: 600;
+}
+
+/* Variables */
+.markdown-content pre code .variable {
+  color: #9cdcfe; /* Light blue for variables */
+}
+
+/* Strings */
+.markdown-content pre code .string {
+  color: #ce9178; /* Orange for strings */
+}
+
+/* Numbers */
+.markdown-content pre code .number {
+  color: #b5cea8; /* Light green for numbers */
+}
+
+/* Comments */
+.markdown-content pre code .comment {
+  color: #6a9955; /* Green for comments */
+  font-style: italic;
+}
+
+/* Operators */
+.markdown-content pre code .operator {
+  color: #d4d4d4; /* Light gray for operators */
+}
+
+/* Built-in functions and types */
+.markdown-content pre code .builtin {
+  color: #4ec9b0; /* Teal for built-in functions */
+}
+
+/* Class names */
+.markdown-content pre code .class {
+  color: #4ec9b0; /* Teal for class names */
+  font-weight: 600;
+}
+
+/* Decorators */
+.markdown-content pre code .decorator {
+  color: #c586c0; /* Purple for decorators */
+}
+
+.markdown-content blockquote {
+  border-left: 4px solid var(--border-primary);
+  padding-left: 16px;
+  margin: 16px 0;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: var(--text-primary);
+}
+
+.markdown-content p {
+  margin: 6px 0;
+  color: var(--foreground);
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  margin: 6px 0;
+  padding-left: 16px;
+  color: var(--foreground);
+}
+
+.markdown-content li {
+  margin: 2px 0;
+  color: var(--foreground);
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.markdown-content em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.markdown-content code {
+  background: var(--secondary);
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--primary);
+  border: 1px solid var(--border);
+}
+
+.markdown-content pre {
+  background: var(--secondary);
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 8px 0;
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.markdown-content pre code {
+  background: none;
+  padding: 0;
+  color: var(--foreground);
+  border: none;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid var(--primary);
+  padding-left: 12px;
+  margin: 8px 0;
+  color: var(--muted-foreground);
+  font-style: italic;
+  background: var(--secondary);
+  padding: 8px 12px;
+  border-radius: 3px;
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

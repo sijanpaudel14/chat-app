@@ -37,36 +37,57 @@ system_message = """You are a helpful AI assistant that provides well-structured
 - Use **bold** for emphasis and important terms
 - Use *italics* for slight emphasis  
 - Use `code` for inline code, variables, and function names
-- Use ```language for code blocks (e.g., ```python, ```javascript, ```bash)
+- Use ```language for code blocks (e.g., ```python, ```javascript, ```bash, ```jsx, ```html)
 - Use # ## ### for clear section headers
 - Use numbered lists (1. 2. 3.) or bullet points (- or *) for organized information
 - Use > for quotes and important notes
 
 **Code Formatting Standards:**
 - Always use proper code blocks with language specification
-- Format code with proper indentation and spacing
+- Format code with proper indentation and spacing (2-4 spaces for indentation)
+- Ensure all HTML/JSX tags are properly closed and formatted
+- Use proper syntax for all programming languages
 - Add clear comments explaining complex logic
-- Use descriptive variable and function names in snake_case (e.g., user_name, process_data, file_path)
+- Use descriptive variable and function names
 - Include docstrings for functions with Args and Returns
 - Separate logical sections with blank lines
-- Follow language-specific conventions (PEP 8 for Python, camelCase for JavaScript, etc.)
-- IMPORTANT: Use snake_case for all Python variable names (not camelCase)
+- Follow language-specific conventions:
+  - PEP 8 for Python (snake_case variables)
+  - camelCase for JavaScript/TypeScript
+  - Proper JSX syntax for React components
+  - Valid HTML structure
+
+**For Web Development Code:**
+- Ensure all JSX/HTML tags are properly opened and closed
+- Use proper React component structure
+- Include all necessary imports
+- Use valid CSS syntax
+- Ensure proper indentation for nested elements
+- Include proper event handlers and state management
 
 **Response Structure:**
 - Start with a brief explanation
-- Provide well-formatted code examples
+- Provide complete, well-formatted code examples
 - Add explanations for key concepts
 - Use clear headings to organize content
 - End with summary or next steps when appropriate
 
 **Code Examples Should:**
-- Be properly indented and formatted
+- Be complete and immediately usable
+- Have proper syntax highlighting with language specification
+- Include all necessary imports and dependencies
+- Use proper indentation (2-4 spaces consistently)
 - Include helpful comments
-- Use clear, descriptive names
-- Follow best practices
-- Be immediately usable
+- Follow best practices for the specific language/framework
+- Have proper error handling where appropriate
 
-Always provide professional, well-organized responses that are easy to read and understand."""
+**Important for HTML/JSX:**
+- Always close all tags properly
+- Use proper nesting and indentation
+- Include all required attributes
+- Ensure valid syntax
+
+Always provide professional, well-organized, syntactically correct responses that are easy to read and understand."""
 conversation_history = []
 
 
@@ -101,19 +122,41 @@ def stream_chat_generator(user_input: str, model_name: str):
 
     # Stream the response from the model
     response_text = ""
-    for chunk in model.stream(messages):
-        if chunk.content:
-            response_text += chunk.content
-            # Send as Server-Sent Events format
-            yield f"data: {json.dumps({'content': response_text, 'done': False})}\n\n"
+    try:
+        for chunk in model.stream(messages):
+            if chunk.content:
+                response_text += chunk.content
+                # Create JSON data with proper escaping
+                data = {
+                    'content': response_text,
+                    'done': False
+                }
+                # Use json.dumps with ensure_ascii=False for proper encoding
+                json_str = json.dumps(data, ensure_ascii=False)
+                yield f"data: {json_str}\n\n"
 
-    # Save to conversation history
-    conversation_history.append({"role": "user", "content": user_input})
-    conversation_history.append(
-        {"role": "assistant", "content": response_text})
+        # Save to conversation history
+        conversation_history.append({"role": "user", "content": user_input})
+        conversation_history.append(
+            {"role": "assistant", "content": response_text})
 
-    # Send final message
-    yield f"data: {json.dumps({'content': response_text, 'done': True})}\n\n"
+        # Send final message
+        final_data = {
+            'content': response_text,
+            'done': True
+        }
+        json_str = json.dumps(final_data, ensure_ascii=False)
+        yield f"data: {json_str}\n\n"
+
+    except Exception as e:
+        # Handle any errors during streaming
+        error_data = {
+            'content': f"Error: {str(e)}",
+            'done': True,
+            'error': True
+        }
+        json_str = json.dumps(error_data, ensure_ascii=False)
+        yield f"data: {json_str}\n\n"
 
 
 @app.post("/api/chat/stream")
@@ -122,11 +165,14 @@ async def stream_chat(request: ChatRequest):
     try:
         return StreamingResponse(
             stream_chat_generator(request.message, request.model_name),
-            media_type="text/plain",
+            media_type="text/event-stream",
             headers={
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "Content-Type": "text/event-stream",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                "Access-Control-Allow-Headers": "*",
             }
         )
     except Exception as e:

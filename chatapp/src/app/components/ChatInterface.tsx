@@ -60,16 +60,19 @@ export default function ChatInterface() {
     setMessages((prev) => [...prev, assistantMessage])
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat/stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: inputText,
-          model_name: 'gemini-2.0-flash',
-        }),
-      })
+      const response = await fetch(
+        'https://chat-app-5x03.onrender.com/api/chat/stream',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: inputText,
+            model_name: 'gemini-2.0-flash',
+          }),
+        }
+      )
 
       if (!response.ok) {
         throw new Error('Failed to send message')
@@ -79,28 +82,47 @@ export default function ChatInterface() {
       const decoder = new TextDecoder()
 
       if (reader) {
+        let buffer = ''
         while (true) {
           const { done, value } = await reader.read()
           if (done) break
 
-          const chunk = decoder.decode(value)
-          const lines = chunk.split('\n')
+          const chunk = decoder.decode(value, { stream: true })
+          buffer += chunk
 
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              try {
-                const data = JSON.parse(line.slice(6))
-                if (data.content) {
-                  setMessages((prev) =>
-                    prev.map((msg) =>
-                      msg.id === assistantMessageId
-                        ? { ...msg, content: data.content }
-                        : msg
-                    )
-                  )
+          // Split by double newline to separate SSE messages
+          const messages = buffer.split('\n\n')
+          // Keep the last incomplete message in buffer
+          buffer = messages.pop() || ''
+
+          for (const message of messages) {
+            const lines = message.split('\n')
+
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const jsonStr = line.slice(6).trim()
+                  if (jsonStr) {
+                    const data = JSON.parse(jsonStr)
+                    if (data.content) {
+                      setMessages((prev) =>
+                        prev.map((msg) =>
+                          msg.id === assistantMessageId
+                            ? { ...msg, content: data.content }
+                            : msg
+                        )
+                      )
+                    }
+                    // Handle error responses
+                    if (data.error) {
+                      console.error('Server error:', data.content)
+                    }
+                  }
+                } catch (e) {
+                  console.error('Error parsing SSE data:', e, 'Line:', line)
+                  // Log the problematic line for debugging
+                  console.error('Problematic line:', JSON.stringify(line))
                 }
-              } catch (e) {
-                console.error('Error parsing SSE data:', e)
               }
             }
           }
@@ -125,7 +147,7 @@ export default function ChatInterface() {
 
   const handleReset = async () => {
     try {
-      await fetch('http://localhost:8000/api/chat/reset', {
+      await fetch('https://chat-app-5x03.onrender.com/api/chat/reset', {
         method: 'POST',
       })
       setMessages([])

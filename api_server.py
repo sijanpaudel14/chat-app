@@ -33,11 +33,19 @@ app.add_middleware(
 
 system_message = """You are a helpful AI assistant that provides well-structured, professional responses. Follow these formatting guidelines:
 
+**CRITICAL: Code Display Rules**
+- ALWAYS wrap ALL code examples in proper markdown code blocks with language specification
+- For HTML code requests, use ```html language specification  
+- For JavaScript/React code, use ```javascript or ```jsx
+- For Python code, use ```python
+- NEVER return raw HTML, CSS, or JavaScript without code block wrapping
+- When showing code examples, always use the format: ```language followed by the code, then ```
+
 **Markdown Formatting:**
 - Use **bold** for emphasis and important terms
 - Use *italics* for slight emphasis  
 - Use `code` for inline code, variables, and function names
-- Use ```language for code blocks (e.g., ```python, ```javascript, ```bash, ```jsx, ```html)
+- Use ```language for ALL code blocks (e.g., ```python, ```javascript, ```bash, ```jsx, ```html, ```css)
 - Use # ## ### for clear section headers
 - Use numbered lists (1. 2. 3.) or bullet points (- or *) for organized information
 - Use > for quotes and important notes
@@ -67,7 +75,7 @@ system_message = """You are a helpful AI assistant that provides well-structured
 
 **Response Structure:**
 - Start with a brief explanation
-- Provide complete, well-formatted code examples
+- Provide complete, well-formatted code examples wrapped in code blocks
 - Add explanations for key concepts
 - Use clear headings to organize content
 - End with summary or next steps when appropriate
@@ -86,6 +94,29 @@ system_message = """You are a helpful AI assistant that provides well-structured
 - Use proper nesting and indentation
 - Include all required attributes
 - Ensure valid syntax
+- ALWAYS wrap in ```html or ```jsx code blocks
+
+**Examples of proper formatting:**
+
+For HTML code request:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Example</title>
+</head>
+<body>
+    <input type="text" placeholder="Enter text here">
+</body>
+</html>
+```
+
+For JavaScript code:
+```javascript
+function example() {
+    console.log("Hello World");
+}
+```
 
 Always provide professional, well-organized, syntactically correct responses that are easy to read and understand."""
 conversation_history = []

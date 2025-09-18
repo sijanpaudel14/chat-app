@@ -141,18 +141,51 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
     // Normalize line endings
     html = html.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
 
-    // Code blocks with language specification (must come first)
+    // Escape HTML entities in content that's not in code blocks first
+    const escapeHtml = (text: string) => {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    }
+
+    // Extract and protect code blocks from HTML escaping
+    const codeBlocks: string[] = []
     html = html.replace(
       /```(\w+)?\n?([\s\S]*?)```/g,
       (match, language, code) => {
+        const index = codeBlocks.length
         const lang = language || ''
         const highlightedCode = applySyntaxHighlighting(code.trim(), lang)
-        return `<pre><code class="language-${lang}">${highlightedCode}</code></pre>`
+        codeBlocks.push(
+          `<pre><code class="language-${lang}">${highlightedCode}</code></pre>`
+        )
+        return `__CODEBLOCK_${index}__`
       }
     )
 
-    // Inline code (must come after code blocks)
-    html = html.replace(/`([^`]+)`/g, '<code>$1</code>')
+    // Extract and protect inline code from HTML escaping
+    const inlineCodes: string[] = []
+    html = html.replace(/`([^`]+)`/g, (match, code) => {
+      const index = inlineCodes.length
+      inlineCodes.push(`<code>${escapeHtml(code)}</code>`)
+      return `__INLINECODE_${index}__`
+    })
+
+    // Now escape any remaining HTML content
+    html = escapeHtml(html)
+
+    // Restore code blocks
+    codeBlocks.forEach((block, index) => {
+      html = html.replace(`__CODEBLOCK_${index}__`, block)
+    })
+
+    // Restore inline codes
+    inlineCodes.forEach((code, index) => {
+      html = html.replace(`__INLINECODE_${index}__`, code)
+    })
 
     // Headers (with proper spacing)
     html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>')

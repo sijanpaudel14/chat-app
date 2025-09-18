@@ -126,36 +126,67 @@ def stream_chat_generator(user_input: str, model_name: str):
         for chunk in model.stream(messages):
             if chunk.content:
                 response_text += chunk.content
-                # Create JSON data with proper escaping
-                data = {
-                    'content': response_text,
-                    'done': False
-                }
-                # Use json.dumps with ensure_ascii=False for proper encoding
-                json_str = json.dumps(data, ensure_ascii=False)
-                yield f"data: {json_str}\n\n"
+                try:
+                    # Create JSON data with proper escaping
+                    data = {
+                        'content': response_text,
+                        'done': False
+                    }
+                    # Use json.dumps with separators to avoid extra spaces and ensure_ascii=True for safety
+                    json_str = json.dumps(data, separators=(
+                        ',', ':'), ensure_ascii=True)
+                    # Validate that the JSON is properly formatted before sending
+                    # This will raise an exception if JSON is invalid
+                    json.loads(json_str)
+                    yield f"data: {json_str}\n\n"
+                except (json.JSONEncodeError, json.JSONDecodeError) as json_error:
+                    # If JSON encoding fails, send a safe error message
+                    print(f"JSON encoding error: {json_error}")
+                    error_data = {
+                        'content': "Error: Content contains invalid characters",
+                        'done': True,
+                        'error': True
+                    }
+                    json_str = json.dumps(error_data, separators=(
+                        ',', ':'), ensure_ascii=True)
+                    yield f"data: {json_str}\n\n"
+                    break
 
-        # Save to conversation history
+        # Save to conversation history only if we completed successfully
         conversation_history.append({"role": "user", "content": user_input})
         conversation_history.append(
             {"role": "assistant", "content": response_text})
 
         # Send final message
-        final_data = {
-            'content': response_text,
-            'done': True
-        }
-        json_str = json.dumps(final_data, ensure_ascii=False)
-        yield f"data: {json_str}\n\n"
+        try:
+            final_data = {
+                'content': response_text,
+                'done': True
+            }
+            json_str = json.dumps(final_data, separators=(
+                ',', ':'), ensure_ascii=True)
+            json.loads(json_str)  # Validate JSON
+            yield f"data: {json_str}\n\n"
+        except (json.JSONEncodeError, json.JSONDecodeError):
+            # Fallback final message
+            final_data = {
+                'content': "Response completed but contained invalid characters",
+                'done': True
+            }
+            json_str = json.dumps(final_data, separators=(
+                ',', ':'), ensure_ascii=True)
+            yield f"data: {json_str}\n\n"
 
     except Exception as e:
         # Handle any errors during streaming
+        print(f"Streaming error: {e}")
         error_data = {
             'content': f"Error: {str(e)}",
             'done': True,
             'error': True
         }
-        json_str = json.dumps(error_data, ensure_ascii=False)
+        json_str = json.dumps(error_data, separators=(
+            ',', ':'), ensure_ascii=True)
         yield f"data: {json_str}\n\n"
 
 

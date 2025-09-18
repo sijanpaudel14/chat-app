@@ -102,26 +102,32 @@ export default function ChatInterface() {
               if (line.startsWith('data: ')) {
                 try {
                   const jsonStr = line.slice(6).trim()
-                  if (jsonStr) {
-                    const data = JSON.parse(jsonStr)
-                    if (data.content) {
-                      setMessages((prev) =>
-                        prev.map((msg) =>
-                          msg.id === assistantMessageId
-                            ? { ...msg, content: data.content }
-                            : msg
+                  if (jsonStr && jsonStr !== '') {
+                    // Additional validation: check if it looks like valid JSON
+                    if (jsonStr.startsWith('{') && jsonStr.endsWith('}')) {
+                      const data = JSON.parse(jsonStr)
+                      if (data.content !== undefined) {
+                        setMessages((prev) =>
+                          prev.map((msg) =>
+                            msg.id === assistantMessageId
+                              ? { ...msg, content: data.content }
+                              : msg
+                          )
                         )
-                      )
-                    }
-                    // Handle error responses
-                    if (data.error) {
-                      console.error('Server error:', data.content)
+                      }
+                      // Handle error responses
+                      if (data.error) {
+                        console.error('Server error:', data.content)
+                      }
                     }
                   }
                 } catch (e) {
-                  console.error('Error parsing SSE data:', e, 'Line:', line)
-                  // Log the problematic line for debugging
+                  console.error('Error parsing SSE data:', e)
                   console.error('Problematic line:', JSON.stringify(line))
+                  console.error(
+                    'JSON string was:',
+                    JSON.stringify(line.slice(6).trim())
+                  )
                 }
               }
             }
